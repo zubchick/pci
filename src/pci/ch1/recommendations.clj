@@ -23,7 +23,6 @@
    "Toby" {"Snakes on a Plane" 4.5, "You, Me and Dupree" 1.0
             "Superman Returns" 4.0}})
 
-
 (defn sum-of-squares [x y]
   (math/expt (- x y) 2))
 
@@ -36,8 +35,8 @@
         keys-pref1 (keys pref1)
         keys-pref2 (keys pref2)]
     ;; если есть общие интересы
-    (if (count (clojure.set/intersection (set keys-pref1)
-                                         (set keys-pref2)))
+    (if (seq (clojure.set/intersection (set keys-pref1)
+                                       (set keys-pref2)))
       (let [sum-of-sqr (apply + (for [item keys-pref1 :when (pref2 item)]
                                   (sum-of-squares (pref1 item) (pref2 item))))]
         (/ 1 (+ 1 sum-of-sqr)))
@@ -69,3 +68,9 @@
         (if (= 0 den)
           0
           (/ num den))))))
+
+(defn top-matches [prefs person &
+                   {:keys [n similarity] :or {n 5, similarity sim-pearson}}]
+  (let [scores (for [other (keys prefs) :when (not= other person)]
+                 [(similarity prefs person other) other])]
+    (-> (sort-by first scores) reverse vec (subvec 0 n))))
