@@ -23,6 +23,23 @@
    "Toby" {"Snakes on a Plane" 9/2, "You, Me and Dupree" 1
            "Superman Returns" 4}})
 
+(defn- map-get [mp key default]
+  (or (mp key) default))
+
+
+(defn- transform-person-prefs [pprefs person]
+  (reduce merge {}
+          (map (fn [[film rate]] {film {person rate}})
+               pprefs)))
+
+
+(defn transform-prefs [prefs]
+  (reduce (fn [result [person pprefs]]
+            (merge-with merge result
+                        (transform-person-prefs pprefs person)))
+          {}
+          prefs))
+
 (defn sum-of-squares [x y]
   (math/expt (- x y) 2))
 
