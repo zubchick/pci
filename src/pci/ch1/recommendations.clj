@@ -4,24 +4,24 @@
 
 (def critics
   {"Lisa Rose" {"Lady in the Water" 5/2, "Snakes on a Plane" 7/2
-                 "Just My Luck" 3, "Superman Returns" 7/2
-                 "You, Me and Dupree" 5/2, "The Night Listener" 3}
+                "Just My Luck" 3, "Superman Returns" 7/2
+                "You, Me and Dupree" 5/2, "The Night Listener" 3}
    "Gene Seymour" {"Lady in the Water" 3, "Snakes on a Plane" 7/2
-                    "Just My Luck" 3/2, "Superman Returns" 5
-                    "The Night Listener" 3, "You, Me and Dupree" 7/2}
+                   "Just My Luck" 3/2, "Superman Returns" 5
+                   "The Night Listener" 3, "You, Me and Dupree" 7/2}
    "Michael Phillips" {"Lady in the Water" 5/2, "Snakes on a Plane" 3
-                        "Superman Returns" 7/2, "The Night Listener" 4}
+                       "Superman Returns" 7/2, "The Night Listener" 4}
    "Claudia Puig" {"Snakes on a Plane" 7/2, "Just My Luck" 3
-                    "The Night Listener" 9/2, "Superman Returns" 4
-                    "You, Me and Dupree" 5/2}
+                   "The Night Listener" 9/2, "Superman Returns" 4
+                   "You, Me and Dupree" 5/2}
    "Mick LaSalle" {"Lady in the Water" 3, "Snakes on a Plane" 4
-                    "Just My Luck" 2, "Superman Returns" 3
-                    "The Night Listener" 3, "You, Me and Dupree" 2}
+                   "Just My Luck" 2, "Superman Returns" 3
+                   "The Night Listener" 3, "You, Me and Dupree" 2}
    "Jack Matthews" {"Lady in the Water" 3, "Snakes on a Plane" 4
-                     "The Night Listener" 3, "Superman Returns" 5
-                     "You, Me and Dupree" 7/2},
+                    "The Night Listener" 3, "Superman Returns" 5
+                    "You, Me and Dupree" 7/2},
    "Toby" {"Snakes on a Plane" 9/2, "You, Me and Dupree" 1
-            "Superman Returns" 4}})
+           "Superman Returns" 4}})
 
 (defn sum-of-squares [x y]
   (math/expt (- x y) 2))
