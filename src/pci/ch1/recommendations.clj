@@ -2,6 +2,7 @@
   (:require clojure.set
             [clojure.math.numeric-tower :as math]))
 
+
 (def critics
   {"Lisa Rose" {"Lady in the Water" 5/2, "Snakes on a Plane" 7/2
                 "Just My Luck" 3, "Superman Returns" 7/2
@@ -23,6 +24,7 @@
    "Toby" {"Snakes on a Plane" 9/2, "You, Me and Dupree" 1
            "Superman Returns" 4}})
 
+
 (defn- map-get [mp key default]
   (or (mp key) default))
 
@@ -40,18 +42,21 @@
           {}
           prefs))
 
+
 (defn sum-of-squares [x y]
   (math/expt (- x y) 2))
 
+
 (defn zip [& colls]
   (apply map vector colls))
+
 
 (defn sim-distance [prefs person1 person2]
   (let [pref1 (prefs person1)
         pref2 (prefs person2)
         keys-pref1 (keys pref1)
         keys-pref2 (keys pref2)]
-    ;; если есть общие интересы
+    ;; common interests
     (if (seq (clojure.set/intersection (set keys-pref1)
                                        (set keys-pref2)))
       (let [sum-of-sqr (apply + (for [item keys-pref1 :when (pref2 item)]
@@ -64,7 +69,7 @@
         pref2 (prefs person2)
         keys-pref1 (keys pref1)
         keys-pref2 (keys pref2)
-        ;; общие интересы
+        ;; common interests
         si (clojure.set/intersection (set keys-pref1)
                                      (set keys-pref2))
         n (count si)]
@@ -84,6 +89,7 @@
           0
           (/ num den))))))
 
+
 (defn top-matches [prefs person &
                    {:keys [n similarity] :or {n 5, similarity sim-pearson}}]
   (let [scores (for [other (keys prefs) :when (not= other person)]
@@ -101,6 +107,7 @@
               (assoc result key (+ total-sum value))))
           {}
           kv-seq))
+
 
 (defn get-recommendations [prefs person &
                            {:keys [similarity] :or {similarity sim-pearson}}]
