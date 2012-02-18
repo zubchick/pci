@@ -2,4 +2,5 @@
   :description "Examples for \"Programming Collective Intelligence\""
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [org.clojure/math.numeric-tower "0.0.1"]]
-  :dev-dependencies [[swank-clojure "1.3.4-SNAPSHOT"]])
+  :dev-dependencies [[clojure-source "1.3.0"]]
+  :jvm-opts ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n"])
