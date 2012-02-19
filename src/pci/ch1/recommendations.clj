@@ -1,6 +1,7 @@
 (ns pci.ch1.recommendations
   (:require clojure.set
-            [clojure.math.numeric-tower :as math]))
+            [clojure.math.numeric-tower :as math]
+            [lojure.java.io :as io]))
 
 
 (def critics
@@ -86,7 +87,10 @@
                    {:keys [n similarity] :or {n 5, similarity sim-pearson}}]
   (let [scores (for [other (keys prefs) :when (not= other person)]
                  [(similarity prefs person other) other])]
-    (-> (sort-by first scores) reverse vec (subvec 0 n))))
+    (let [result (-> (sort-by first scores) reverse vec)
+          len (count result)
+          end (if (> n len) len n)]
+      (subvec result 0 end))))
 
 
 (defn group-sum
@@ -113,9 +117,37 @@
             [[item, (* sim ((prefs other) item))]
              [item, sim]]))
 
-        prepare (fn [getter] (reduce concat []
-                                    (map #(map getter %) totals-and-sums)))
+        concated (apply concat totals-and-sums)
+        prepare (fn [getter] (map getter concated))
         totals (group-sum (prepare first))
         sim-sums (group-sum (prepare second))
         rankings (for [[item, total] totals] [(/ total (sim-sums item)), item])]
+    (-> rankings sort reverse)))
+
+
+(defn calculate-similar-items [prefs &
+                               {:keys [n] :or {n 10}}]
+  (let [item-prefs (transform-prefs prefs)]
+    (apply merge (for [item (keys item-prefs)]
+                   {item (top-matches item-prefs, item, :n n
+                                      :similarity sim-distance)}))))
+
+
+(def item-sim (calculate-similar-items critics))
+
+
+(defn get-recommended-items [prefs item-match user]
+  (let [pprefs (prefs user)
+        pprefs-keys (keys pprefs)
+        prepared (apply concat
+                        (for [[item rating] pprefs]
+                                 (for [[similarity item2] (item-match item)
+                                       :when (not (some #{item2} pprefs-keys))]
+                                   [[item2 (* similarity rating)]
+                                    [item2 similarity]])))
+
+        scores (group-sum (map first prepared))
+        total-sim (group-sum (map second prepared))
+        rankings (for [[item, score] scores]
+                   [(/ score (total-sim item)) item])]
     (-> rankings sort reverse)))
