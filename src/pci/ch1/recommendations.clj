@@ -25,22 +25,14 @@
            "Superman Returns" 4}})
 
 
-(defn- map-get [mp key default]
-  (or (mp key) default))
-
-
-(defn- transform-person-prefs [pprefs person]
-  (reduce merge {}
-          (map (fn [[film rate]] {film {person rate}})
-               pprefs)))
-
-
 (defn transform-prefs [prefs]
-  (reduce (fn [result [person pprefs]]
-            (merge-with merge result
-                        (transform-person-prefs pprefs person)))
-          {}
-          prefs))
+  (apply merge-with merge
+              (for [[person pprefs] prefs
+                    [film rate] pprefs]
+                {film {person rate}})))
+
+
+(def movies (transform-prefs critics))
 
 
 (defn sum-of-squares [x y]
