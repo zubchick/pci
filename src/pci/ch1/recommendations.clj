@@ -1,7 +1,6 @@
 (ns pci.ch1.recommendations
   (:require clojure.set
-            [clojure.math.numeric-tower :as math]
-            [lojure.java.io :as io]))
+            [clojure.math.numeric-tower :as math]))
 
 
 (def critics
@@ -78,7 +77,7 @@
             num (- psum (* sum1 (/ sum2 n)))
             den (math/sqrt (* (- sum1sq (/ (math/expt sum1 2) n))
                               (- sum2sq (/ (math/expt sum2 2) n))))]
-        (if (= 0 den)
+        (if (zero? den)
           0
           (/ num den))))))
 
@@ -86,11 +85,11 @@
 (defn top-matches [prefs person &
                    {:keys [n similarity] :or {n 5, similarity sim-pearson}}]
   (let [scores (for [other (keys prefs) :when (not= other person)]
-                 [(similarity prefs person other) other])]
-    (let [result (-> (sort-by first scores) reverse vec)
-          len (count result)
-          end (if (> n len) len n)]
-      (subvec result 0 end))))
+                 [(similarity prefs person other), other])
+        result (-> (sort-by first scores) reverse vec)
+        len (count result)
+        end (if (> n len) len n)]
+    (subvec result 0 end)))
 
 
 (defn group-sum
@@ -118,9 +117,8 @@
              [item, sim]]))
 
         concated (apply concat totals-and-sums)
-        prepare (fn [getter] (map getter concated))
-        totals (group-sum (prepare first))
-        sim-sums (group-sum (prepare second))
+        totals (group-sum (map first concated))
+        sim-sums (group-sum (map second concated))
         rankings (for [[item, total] totals] [(/ total (sim-sums item)), item])]
     (-> rankings sort reverse)))
 
