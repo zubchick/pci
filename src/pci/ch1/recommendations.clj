@@ -27,9 +27,9 @@
 
 (defn transform-prefs [prefs]
   (apply merge-with merge
-              (for [[person pprefs] prefs
-                    [film rate] pprefs]
-                {film {person rate}})))
+         (for [[person pprefs] prefs
+               [film rate] pprefs]
+           {film {person rate}})))
 
 
 (def movies (transform-prefs critics))
@@ -139,10 +139,10 @@
         pprefs-keys (set (keys pprefs))
         prepared (apply concat
                         (for [[item rating] pprefs]
-                                 (for [[similarity item2] (item-match item)
-                                       :when (not (pprefs-keys item2))]
-                                   [[item2 (* similarity rating)]
-                                    [item2 similarity]])))
+                          (for [[similarity item2] (item-match item)
+                                :when (not (pprefs-keys item2))]
+                            [[item2 (* similarity rating)]
+                             [item2 similarity]])))
 
         scores (group-sum (map first prepared))
         total-sim (group-sum (map second prepared))
