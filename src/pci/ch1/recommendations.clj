@@ -136,16 +136,18 @@
 
 (defn get-recommended-items [prefs item-match user]
   (let [pprefs (prefs user)
-        pprefs-keys (keys pprefs)
+        pprefs-keys (set (keys pprefs))
         prepared (apply concat
                         (for [[item rating] pprefs]
                                  (for [[similarity item2] (item-match item)
-                                       :when (not (some #{item2} pprefs-keys))]
+                                       :when (not (pprefs-keys item2))]
                                    [[item2 (* similarity rating)]
                                     [item2 similarity]])))
 
         scores (group-sum (map first prepared))
         total-sim (group-sum (map second prepared))
         rankings (for [[item, score] scores]
-                   [(/ score (total-sim item)) item])]
+                   (if (zero? (total-sim item))
+                     [0 item]
+                     [(/ score (total-sim item)) item]))]
     (-> rankings sort reverse)))
