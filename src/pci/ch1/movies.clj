@@ -16,3 +16,8 @@
                {user {(movies movieid) (Float/parseFloat rating)}})))))
 
 (def prefs (load-movie-lens "/Users/zubchick/workspace/pci/src/pci/ch1/data"))
+
+(def test-itemsim (recommendations/calculate-similar-items test-prefs :n 50))
+
+(defn get-item-sim [prefs]
+  (calculate-similar-items prefs :n 50))
