@@ -1,4 +1,4 @@
-(ns pci.ch1.recommendations
+(ns pci.ch2.recommendations
   (:require clojure.set
             [clojure.math.numeric-tower :as math]))
 

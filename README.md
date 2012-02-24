@@ -1,7 +1,7 @@
 # Programming Collective Intelligence in clojure
 
 0. Introduction to Collective Intelligence
-1. [Making Recommendations](https://github.com/zubchick/pci/blob/master/src/pci/ch1/recommendations.clj)
+1. [Making Recommendations](https://github.com/zubchick/pci/blob/master/src/pci/ch2/recommendations.clj)
 2. Discovering Groups
 3. Searching and Ranking
 4. Optimization

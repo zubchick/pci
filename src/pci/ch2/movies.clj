@@ -1,7 +1,7 @@
-(ns pci.ch1.movies
+(ns pci.ch2.movies
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
-            [pci.ch1.recommendations :as recommendations]))
+            [pci.ch2.recommendations :as recommendations]))
 
 
 (defn load-movie-lens [path]
@@ -15,7 +15,7 @@
                    :let [[user movieid rating ts] (str/split line #"\t")]]
                {user {(movies movieid) (Float/parseFloat rating)}})))))
 
-(def prefs (load-movie-lens "/Users/zubchick/workspace/pci/src/pci/ch1/data"))
+(def prefs (load-movie-lens "/Users/zubchick/workspace/pci/src/pci/ch2/data"))
 
 (def test-itemsim (recommendations/calculate-similar-items test-prefs :n 50))
 
