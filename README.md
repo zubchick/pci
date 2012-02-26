@@ -5,7 +5,7 @@
 2. Discovering Groups
 3. Searching and Ranking
 4. Optimization
-5. Document Filtering
+5. [Document Filtering](https://github.com/zubchick/pci/blob/master/src/pci/ch6/docclass.clj)
 6. Modeling with Decision Trees
 7. Building Price Models
 8. Advanced Classification: Kernel Methods and SVMs
