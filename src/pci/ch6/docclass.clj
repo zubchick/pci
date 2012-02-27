@@ -7,7 +7,7 @@
                     :let [str-count (count word)]
                     :when (and (> str-count 2)
                                (< str-count 20))]
-                [word 1])]
+                [(.toLowerCase word) 1])]
     (into {} words)))
 
 (defn create-classifier [get-features]
@@ -64,3 +64,19 @@
     (train cl "buy pharmaceuticals now" :bad)
     (train cl "make quick money at the online casino" :bad)
     (train cl "the quick brown fox jumps" :good)))
+
+(defn classifier-fprob [classifier f cat]
+  (let [count (classifier-catcount classifier cat)]
+    (if (not= count 0)
+      (/ (classifier-fcount classifier f cat)
+         count)
+      0)))
+
+(defn classifier-weight-prob [classifier f cat prf &
+                              {:keys [weight ap] :or {weight 1 ap 1/2}}]
+  (let [basic-prob (prf f cat)
+        totals (apply + (for [c (classifier-categories classifier)]
+                          (classifier-fcount f c)))]
+    (/ (+ (* weight ap) (* totals basic-prob))
+       (+ weight totals))))
+
