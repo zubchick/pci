@@ -11,7 +11,9 @@
     (into {} words)))
 
 (defn create-classifier [get-features]
-  {:cc (atom {}), :fc (atom {}) :get-features get-features})
+  {:cc (atom {}), :fc (atom {})
+   :get-features get-features
+   :thresholds (atom {})})
 
 (defn- fc-inc [fc f cat]
   (if-let [pairs (fc f)]
@@ -20,17 +22,17 @@
       (merge-with merge fc {f {cat 1}}))
     (assoc fc f {cat 1})))
 
-(defn classifier-incf [classifier f cat]
+(defn incf! [classifier f cat]
   (let [fc (classifier :fc)]
     (swap! fc fc-inc f cat)))
 
-(defn classifier-incc [classifier cat]
+(defn incc! [classifier cat]
   (let [cc (classifier :cc)]
     (if-let [category ((deref cc) cat)]
       (swap! cc assoc cat (inc category))
       (swap! cc assoc cat 1))))
 
-(defn classifier-fcount [classifier f cat]
+(defn fcount [classifier f cat]
   (let [fc (classifier :fc)]
     (if-let [category ((deref fc) f)]
       (if-let [value (category cat)]
@@ -38,45 +40,92 @@
         0)
       0)))
 
-(defn classifier-cat-count [classifier cat]
+(defn cat-count [classifier cat]
   (if-let [res ((deref (classifier :cc)) cat)]
     res
     0))
 
-(defn classifier-total-count [classifier]
+(defn total-count [classifier]
   (apply + (-> classifier :cc deref vals)))
 
-(defn classifier-categories [classifier]
+(defn categories [classifier]
   (-> classifier :cc deref keys))
 
 
-(defn train [classifier item cat]
+(defn train! [classifier item cat]
   (let [get-f (classifier :get-features)
         features (get-f item)]
     (doseq [[f _] features]
-      (classifier-incf classifier f cat)))
-  (classifier-incc classifier cat))
+      (incf! classifier f cat)))
+  (incc! classifier cat)
+  nil)
 
-(defn sampl-train [classifier]
+(defn sampl-train! [classifier]
   (let [cl classifier]
-    (train cl "Nobody owns the water." :good)
-    (train cl "the quick rabbit jumps fences" :good)
-    (train cl "buy pharmaceuticals now" :bad)
-    (train cl "make quick money at the online casino" :bad)
-    (train cl "the quick brown fox jumps" :good)))
+    (train! cl "Nobody owns the water." :good)
+    (train! cl "the quick rabbit jumps fences" :good)
+    (train! cl "buy pharmaceuticals now" :bad)
+    (train! cl "make quick money at the online casino" :bad)
+    (train! cl "the quick brown fox jumps" :good)))
 
-(defn classifier-fprob [classifier f cat]
-  (let [count (classifier-catcount classifier cat)]
+(defn fprob [classifier f cat]
+  (let [count (cat-count classifier cat)]
     (if (not= count 0)
-      (/ (classifier-fcount classifier f cat)
+      (/ (fcount classifier f cat)
          count)
       0)))
 
-(defn classifier-weight-prob [classifier f cat prf &
+(defn weight-prob [classifier f cat prf &
                               {:keys [weight ap] :or {weight 1 ap 1/2}}]
-  (let [basic-prob (prf f cat)
-        totals (apply + (for [c (classifier-categories classifier)]
-                          (classifier-fcount f c)))]
+  (let [basic-prob (prf classifier f cat)
+        totals (apply + (for [c (categories classifier)]
+                          (fcount classifier f c)))]
     (/ (+ (* weight ap) (* totals basic-prob))
        (+ weight totals))))
 
+(defn docprob [classifier item cat]
+  (let [get-f (classifier :get-features)
+        features (get-f item)]
+    (apply *
+           (for [[f _] features]
+             (weight-prob classifier f cat fprob)))))
+
+(defn prob [classifier item cat]
+  (let [catprob (/ (cat-count classifier cat)
+                   (total-count classifier))
+        docprob (docprob classifier item cat)]
+    (* catprob docprob)))
+
+(defn set-threshold! [classifier cat t]
+  (let [thresholds (classifier :thresholds)]
+    (swap! thresholds assoc cat t)))
+
+(defn get-threshold [classifier cat]
+  (let [thresholds (classifier :thresholds)]
+    (if-let [score (@thresholds cat)]
+      score
+      1)))
+
+(defn classify [classifier item &
+                {:keys [default] :or {default :unknown}}]
+  (loop [cats (categories classifier)
+         probs {}
+         max 0
+         best nil]
+    (if (seq cats)
+      (let [cat (first cats)
+            candidate (prob classifier item cat)
+            new-prob (assoc probs cat candidate)]
+        (if (> candidate max)
+          (recur (rest cats) new-prob candidate cat)
+          (recur (rest cats) new-prob  max best)))
+      (loop [sq probs]
+        (if (seq sq)
+          (let [cat (ffirst sq)]
+            (if (= cat best)
+              (recur (rest (seq sq)))
+              (if (> (* (probs cat) (get-threshold classifier best))
+                     (probs best))
+                default
+                (recur (rest (seq sq))))))
+          best)))))
