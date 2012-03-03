@@ -148,21 +148,6 @@
                 (recur (rest (seq sq))))))
           best)))))
 
-(defn fclassify [fclassifier item &
-                 {:keys [default] :or {default :unknown}}]
-  (loop [cats (categories fclassifier)
-         max 0
-         best default]
-    (if (seq cats)
-      (let [c (first cats)
-            p (fisher-prob fclassifier item c)]
-        (if (and (> p (get-minimum fclassifier c))
-                 (> p max))
-          (recur (rest cats) p c)
-          (recur (rest cats) max best)))
-      best)))
-
-
 (defn cprob [classifier f cat]
   (let [clf (fprob classifier f cat)]
     (if (zero? clf)
@@ -192,3 +177,16 @@
         fscore (* -2 (Math/log p))]
     (invchi2 fscore (* 2 (count features)))))
 
+(defn fclassify [fclassifier item &
+                 {:keys [default] :or {default :unknown}}]
+  (loop [cats (categories fclassifier)
+         max 0
+         best default]
+    (if (seq cats)
+      (let [c (first cats)
+            p (fisher-prob fclassifier item c)]
+        (if (and (> p (get-minimum fclassifier c))
+                 (> p max))
+          (recur (rest cats) p c)
+          (recur (rest cats) max best)))
+      best)))
